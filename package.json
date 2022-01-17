@@ -1,0 +1,30 @@
+{
+  "name": "ab-mariadb",
+  "version": "0.0.1",
+  "description": "AB-MariaDB is library that provides frequently used features on `MariaDB`.",
+  "keywords": [
+    "backend",
+    "common",
+    "library",
+    "mariadb",
+    "node"
+  ],
+  "author": "Aiden <bokjaeoh@gmail.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aiden-jnj/AB-MariaDB.git"
+  },
+  "homepage": "https://github.com/aiden-jnj/AB-MariaDB#readme",
+  "bugs": {
+    "url": "https://github.com/aiden-jnj/AB-MariaDB/issues"
+  },
+  "engines": {
+    "node": ">= 12.14.1"
+  },
+  "main": "./src/index.js",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "scripts": {}
+}
