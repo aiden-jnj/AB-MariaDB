@@ -24,6 +24,7 @@
   },
   "main": "./src/index.js",
   "dependencies": {
+    "ab-dbquery": "^0.0.1",
     "mariadb": "^2.5.5"
   },
   "devDependencies": {},
