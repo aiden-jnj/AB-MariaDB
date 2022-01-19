@@ -1,3 +1,11 @@
+const {
+  queryInsert,
+  querySelect,
+  querySelectGroup,
+  querySelectJoin,
+  queryUpdate,
+  querySelectJoinGroup
+} = require('ab-dbquery')
 const mariadb = require('mariadb')
 
 
@@ -42,32 +50,6 @@ const createPool = config => {
   }
 
   return mariadb.pool
-}
-
-/**
- * Run query statement and returns result.
- *
- * @param {String} query Query statement to be run.
- * @throws '[MariaDB query] No connection to MariaDB!'
- * @returns {Promise<Any>} Result of run query statement.
- */
-const query = async query => {
-  const connection = await getConnection()
-
-  if (!connection || !connection.isValid()) {
-    throw `[MariaDB query] No connection to MariaDB!`
-  }
-
-  try {
-    mariadb.log.debug && mariadb.log.debug(`[MariaDB query] ${query}`)
-    return await connection.query(query)
-  } catch (error) {
-    mariadb.log.error && mariadb.log.error(`[MariaDB query] error: %o`, error)
-    throw error
-  } finally {
-    connection.release && connection.release()
-    connection.end && connection.end()
-  }
 }
 
 /**
@@ -119,6 +101,19 @@ const getConnection = async config => {
 }
 
 /**
+ * Returns result after executing `INSERT` query statement.
+ *
+ * @param {String} table Table name to use in query statement.
+ * @param {Object} values Values object that consisting of field names and values to add to table.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @throws 'Not passed object consisting of field and value to be used in INSERT query statement!'
+ * @returns {Promise<Any>} Result of executing `INSERT` query statement.
+ */
+const insert = async (table, values) => {
+  return await query(queryInsert(table, values))
+}
+
+/**
  * MariaDB pool connection count information output.
  */
 const poolInfo = () => {
@@ -132,7 +127,159 @@ const poolInfo = () => {
   )
 }
 
-const ABMariaDB = { createPool, getConnection, mariadb, query }
+/**
+ * Run query statement and returns result.
+ *
+ * @param {String} query Query statement to be run.
+ * @throws '[MariaDB query] No connection to MariaDB!'
+ * @returns {Promise<Any>} Result of run query statement.
+ */
+const query = async query => {
+  const connection = await getConnection()
+
+  if (!connection || !connection.isValid()) {
+    throw `[MariaDB query] No connection to MariaDB!`
+  }
+
+  try {
+    mariadb.log.debug && mariadb.log.debug(`[MariaDB query] ${query}`)
+    return await connection.query(query)
+  } catch (error) {
+    mariadb.log.error && mariadb.log.error(`[MariaDB query] error: %o`, error)
+    throw error
+  } finally {
+    connection.release && connection.release()
+    connection.end && connection.end()
+  }
+}
+
+/**
+ * Returns result after executing `SELECT` query statement.
+ *
+ * @param {String} table Table name to be used in `SELECT` query statement.
+ * @param {String|Array} [field=null] Fields to be used in `SELECT` query statement.
+ * @param {String|Object} [where=null] Where condition to be used in `SELECT` query statement.
+ * @param {String} [order=null] Order by clause to be used in `SELECT` query statement.
+ * @param {String} [group=null] Group by clause to be used in `SELECT` query statement.
+ * @param {Number} [limit=0] Number of rows to return to be used in `SELECT` query statement.
+ * If `0` no limit in used.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Promise<Any>} Result of executing `SELECT` query statement.
+ */
+const select = async (table, field = null, where = null, order = null, limit = 0) => {
+  return await query(querySelect(table, field, where, order, limit))
+}
+
+/**
+ * Returns result after executing `SELECT` query statement using group.
+ *
+ * @param {String} table Table name to use in query statement.
+ * @param {String|Array} [field=null] Fields to be used in query statement.
+ * @param {String|Object} [where=null] Where condition to be used in query statement.
+ * @param {String} [group=null] Group by clause to be used in query statement.
+ * @param {String} [having=null] Having condition to be used in group by clause of query statement.
+ * @param {String} [order=null] Order by clause to be used in query statement.
+ * @param {Number} [limit=0] Number of rows to return to be used in query statement. If `0` no limit in used.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Promise<Any>} Result of executing `SELECT` query statement using group.
+ */
+const selectGroup = async (
+  table,
+  field = null,
+  where = null,
+  group = null,
+  having = null,
+  order = null,
+  limit = 0
+) => {
+  return await query(querySelectGroup(table, field, where, group, having, order, limit))
+}
+
+/**
+ * Returns result after executing `SELECT` query statement using table join.
+ *
+ * @param {String} table Table name to use in query statement.
+ * @param {String} [type=null] Join type to be used in table join query statement.
+ * @param {String} [join=null] Table name of joined target table to use in join query statement.
+ * @param {String} [on=null] Constraint for to use table join.
+ * @param {String|Array} [field=null] Fields to be used in query statement.
+ * @param {String|Object} [where=null] Where condition to be used in query statement.
+ * @param {String} [order=null] Order by clause to be used in query statement.
+ * @param {Number} [limit=0] Number of rows to return to be used in query statement. If `0` no limit in used.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Promise<Any>} Result of executing `SELECT` query statement using table join.
+ */
+const selectJoin = async (
+  table,
+  type = null,
+  join = null,
+  on = null,
+  field = null,
+  where = null,
+  order = null,
+  limit = 0
+) => {
+  return await query(querySelectJoin(table, type, join, on, field, where, order, limit))
+}
+
+/**
+ * Returns result after executing `SELECT` query statement using table join and group.
+ *
+ * @param {String} table Table name to use in query statement.
+ * @param {String} [type=null] Join type to be used in table join query statement.
+ * @param {String} [join=null] Table name of joined target table to use in join query statement.
+ * @param {String} [on=null] Constraint for to use table join.
+ * @param {String|Array} [field=null] Fields to be used in query statement.
+ * @param {String|Object} [where=null] Where condition to be used in query statement.
+ * @param {String} [group=null] Group by clause to be used in query statement.
+ * @param {String} [having=null] Having condition to be used in group by clause of query statement.
+ * @param {String} [order=null] Order by clause to be used in query statement.
+ * @param {Number} [limit=0] Number of rows to return to be used in query statement. If `0` no limit in used.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Promise<Any>} Result of executing `SELECT` query statement using table join and group.
+ */
+const selectJoinGroup = async (
+  table,
+  type = null,
+  join = null,
+  on = null,
+  field = null,
+  where = null,
+  group = null,
+  having = null,
+  order = null,
+  limit = 0
+) => {
+  return await query(querySelectJoinGroup(table, type, join, on, field, where, group, having, order, limit))
+}
+
+/**
+ * Returns result after executing `UPDATE` query statement.
+ *
+ * @param {String} table Table name to use in query statement.
+ * @param {Object} values Values object that consisting of field names and values to be used in `UPDATE` query statement.
+ * @param {String|Object} where Where condition to be used in query statement.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @throws 'Not passed object consisting of field and value to be used in UPDATE query statement!'
+ * @throws 'Not passed update condition clause to be used in UPDATE query statement!
+ * @returns {Promise<Any>} Result of executing `UPDATE` query statement.
+ */
+const update = async (table, values, where) => {
+  return await query(queryUpdate(table, values, where))
+}
+
+const ABMariaDB = {
+  createPool,
+  getConnection,
+  insert,
+  mariadb,
+  query,
+  select,
+  selectGroup,
+  selectJoin,
+  selectJoinGroup,
+  update
+}
 
 
 module.exports = ABMariaDB
