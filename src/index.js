@@ -42,7 +42,7 @@ const createPool = config => {
 
   mariadb.config = config
 
-  mariadb.log = config.logger || console
+  mariadb.log = config?.logger || console
   mariadb.pool = mariadb.createPool(config)
 
   if (!mariadb.pool) {
@@ -70,13 +70,13 @@ const createPool = config => {
  * @returns {Promise<mariadb.Connection>} MariaDB connection created using passed configuration information.
  */
 const getConnection = async config => {
-  if (mariadb.pool) {
+  if (mariadb.pool && !mariadb.connection) {
     mariadb.connection = await mariadb.pool.getConnection()
     poolInfo()
     return mariadb.connection
   }
 
-  if (mariadb.connection && mariadb.connection.isValid()) {
+  if (mariadb?.connection?.isValid()) {
     return mariadb.connection
   }
 
@@ -90,7 +90,7 @@ const getConnection = async config => {
 
   mariadb.config = config
 
-  mariadb.log = config.logger || console
+  mariadb.log = config?.logger || console
   mariadb.connection = await mariadb.createConnection(config)
 
   if (!mariadb.connection) {
@@ -117,13 +117,13 @@ const insert = async (table, values) => {
  * MariaDB pool connection count information output.
  */
 const poolInfo = () => {
-  if (!mariadb.pool) return
+  if (!mariadb?.pool) return
 
-  mariadb.log && mariadb.log.info(
+  mariadb.log?.info && mariadb.log.info(
     `[MariaDB pool] connections - ` +
-    `active: ${mariadb.pool.activeConnections()} / ` +
-    `idle: ${mariadb.pool.idleConnections()} / ` +
-    `total: ${mariadb.pool.totalConnections()}`
+    `active: ${mariadb.pool?.activeConnections()} / ` +
+    `idle: ${mariadb.pool?.idleConnections()} / ` +
+    `total: ${mariadb.pool?.totalConnections()}`
   )
 }
 
@@ -142,10 +142,10 @@ const query = async query => {
   }
 
   try {
-    mariadb.log.debug && mariadb.log.debug(`[MariaDB query] ${query}`)
+    mariadb.log?.debug && mariadb.log.debug(`[MariaDB query] ${query}`)
     return await connection.query(query)
   } catch (error) {
-    mariadb.log.error && mariadb.log.error(`[MariaDB query] error: %o`, error)
+    mariadb.log?.error && mariadb.log.error(`[MariaDB query] error: %o`, error)
     throw error
   } finally {
     connection.release && connection.release()
