@@ -10,6 +10,18 @@ const mariadb = require('mariadb')
 
 
 /**
+ * Returns number of rows in table that match where condition.
+ *
+ * @param {String} table Table name to be used in `SELECT` query statement.
+ * @param {String|Object} [where=null] Where condition to be used in `SELECT` query statement.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Number} Number of rows in table that match where condition.
+ */
+const count = async (table, where) => {
+  return await query(querySelect(table, `COUNT(*) AS count`), where).count
+}
+
+/**
  * Returns MariaDB pool that created using passed configuration information.
  *
  * @param {Object} config Configuration information for using MariaDB pool.
