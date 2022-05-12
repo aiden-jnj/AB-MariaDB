@@ -18,9 +18,8 @@ const mariadb = require('mariadb')
  * @returns {Number} Number of rows in table that match where condition.
  */
 const count = async (table, where) => {
-  const rows = await query(querySelect(table, `COUNT(*) AS count`))
+  const rows = await query(querySelect(table, `COUNT(*) AS count`, where))
   return rows[0].count || 0
-
 }
 
 /**
