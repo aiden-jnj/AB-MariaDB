@@ -1,6 +1,6 @@
 {
   "name": "ab-mariadb",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "AB-MariaDB is library that provides frequently used features on `MariaDB`.",
   "keywords": [
     "backend",
