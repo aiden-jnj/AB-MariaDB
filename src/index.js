@@ -18,7 +18,9 @@ const mariadb = require('mariadb')
  * @returns {Number} Number of rows in table that match where condition.
  */
 const count = async (table, where) => {
-  return await query(querySelect(table, `COUNT(*) AS count`), where).count
+  const rows = await query(querySelect(table, `COUNT(*) AS count`))
+  return rows[0].count || 0
+
 }
 
 /**
@@ -172,7 +174,6 @@ const query = async query => {
  * @param {String|Array} [field=null] Fields to be used in `SELECT` query statement.
  * @param {String|Object} [where=null] Where condition to be used in `SELECT` query statement.
  * @param {String} [order=null] Order by clause to be used in `SELECT` query statement.
- * @param {String} [group=null] Group by clause to be used in `SELECT` query statement.
  * @param {Number} [limit=0] Number of rows to return to be used in `SELECT` query statement.
  * If `0` no limit in used.
  * @throws 'Not passed table name to be used in query statement!'
@@ -266,6 +267,21 @@ const selectJoinGroup = async (
 }
 
 /**
+ * Returns result that single row of executing `SELECT` query statement.
+ *
+ * @param {String} table Table name to be used in `SELECT` query statement.
+ * @param {String|Array} [field=null] Fields to be used in `SELECT` query statement.
+ * @param {String|Object} [where=null] Where condition to be used in `SELECT` query statement.
+ * @param {String} [order=null] Order by clause to be used in `SELECT` query statement.
+ * @throws 'Not passed table name to be used in query statement!'
+ * @returns {Object|null} Result that single row of executing `SELECT` query statement.
+ */
+const selectSingle = async(table, field = null, where = null, order = null) => {
+  const rows = await query(querySelect(table, field, where, order))
+  return rows[0] || null
+}
+
+/**
  * Returns result after executing `UPDATE` query statement.
  *
  * @param {String} table Table name to use in query statement.
@@ -281,6 +297,7 @@ const update = async (table, values, where) => {
 }
 
 const ABMariaDB = {
+  count,
   createPool,
   getConnection,
   insert,
@@ -290,6 +307,7 @@ const ABMariaDB = {
   selectGroup,
   selectJoin,
   selectJoinGroup,
+  selectSingle,
   update
 }
 
